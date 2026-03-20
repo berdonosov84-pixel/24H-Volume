@@ -26,9 +26,10 @@ def main():
         df = pd.DataFrame(rows, columns=["Ticker", "Volume (USDT)"])
         df = df.sort_values(by="Volume (USDT)", ascending=False)
 
-        df.to_excel("binance_futures_volume.xlsx", index=False)
+        # Сохраняем в CSV вместо Excel
+        df.to_csv("binance_futures_volume.csv", index=False, encoding='utf-8-sig')
 
-        print("Файл сохранён: binance_futures_volume.xlsx")
+        print("Файл сохранён: binance_futures_volume.csv")
 
     except Exception as e:
         print("ОШИБКА:")
