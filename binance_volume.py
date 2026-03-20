@@ -1,24 +1,40 @@
 import requests
 import pandas as pd
+import traceback
 
 URL = "https://fapi.binance.com/fapi/v1/ticker/24hr"
 
 def main():
-    response = requests.get(URL)
-    data = response.json()
+    try:
+        print("Запрос к Binance...")
 
-    rows = []
-    for item in data:
-        symbol = item["symbol"]
-        if symbol.endswith("USDT"):
-            volume = float(item["quoteVolume"])
-            rows.append([symbol, volume])
+        response = requests.get(URL, timeout=10)
+        response.raise_for_status()
 
-    df = pd.DataFrame(rows, columns=["Ticker", "Volume (USDT)"])
-    df = df.sort_values(by="Volume (USDT)", ascending=False)
+        data = response.json()
 
-    df.to_excel("binance_futures_volume.xls", index=False)
-    print("Готово: binance_futures_volume.xls")
+        rows = []
+        for item in data:
+            symbol = item["symbol"]
+
+            if symbol.endswith("USDT"):
+                volume = float(item.get("quoteVolume", 0))
+                rows.append([symbol, volume])
+
+        print(f"Получено {len(rows)} тикеров")
+
+        df = pd.DataFrame(rows, columns=["Ticker", "Volume (USDT)"])
+        df = df.sort_values(by="Volume (USDT)", ascending=False)
+
+        df.to_excel("binance_futures_volume.xlsx", index=False)
+
+        print("Файл сохранён: binance_futures_volume.xlsx")
+
+    except Exception as e:
+        print("ОШИБКА:")
+        traceback.print_exc()
+
+    input("Нажми Enter для выхода...")
 
 if __name__ == "__main__":
     main()
